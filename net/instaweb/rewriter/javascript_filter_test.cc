@@ -1439,6 +1439,25 @@ TEST_P(JavascriptFilterTest, BasicCsp) {
              "because CSP disallows its fetch-->"));
 }
 
+TEST_P(JavascriptFilterTest, CspIrrelevant) {
+  InitFilters();
+  EnableDebug();
+
+  SetResponseWithDefaultHeaders(
+      "scripts/a.js", kContentTypeJavascript, kJsData, 100);
+
+  const char kCsp[] =
+      "<meta http-equiv=\"Content-Security-Policy\" "
+      "content=\"img-src https:\">";
+
+  ValidateExpected(
+      "basic_csp",
+      StrCat(kCsp,
+             ScriptSrc("scripts/a.js")),
+      StrCat(kCsp,
+             ScriptSrc(Encode("scripts/", "jm", "0", "a.js", "js"))));
+}
+
 TEST_P(JavascriptFilterTest, InlineCsp) {
   InitFilters();
   EnableDebug();
