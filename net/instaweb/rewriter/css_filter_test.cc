@@ -2452,6 +2452,7 @@ TEST_F(CssFilterTest, InlineCsp) {
   EnableDebug();
   options()->ClearSignatureForTesting();
   options()->EnableFilter(RewriteOptions::kRewriteStyleAttributes);
+  server_context()->ComputeSignature(options());
 
   const char kCsp[] = "<meta http-equiv=\"Content-Security-Policy\" "
                       "content=\"style-src */styles/ \">";
@@ -2465,6 +2466,27 @@ TEST_F(CssFilterTest, InlineCsp) {
              "<!--Avoiding modifying inline style with CSP present-->",
              kStyledDiv,
              "<!--Avoiding modifying inline style with CSP present-->"));
+}
+
+TEST_F(CssFilterTest, InlineCspIrrelevant) {
+  EnableDebug();
+  options()->ClearSignatureForTesting();
+  options()->EnableFilter(RewriteOptions::kRewriteStyleAttributes);
+  server_context()->ComputeSignature(options());
+
+  // We don't worry about not-style, not-default CSP, shough
+  const char kCsp[] = "<meta http-equiv=\"Content-Security-Policy\" "
+                      "content=\"img-src */images/ \">";
+
+  const char kCss[] = "<style>* { display: stylish; }</style>";
+  const char kMinCss[] = "<style>*{display:stylish}</style>";
+  const char kStyledDiv[] = "<div style='background-color: #f00; '/>";
+  const char kMinStyledDiv[] = "<div style='background-color:red'/>";
+
+  ValidateExpected(
+      "inline_css",
+      StrCat(kCsp, kCss, kStyledDiv),
+      StrCat(kCsp, kMinCss, kMinStyledDiv));
 }
 
 class CssFilterTestUrlNamer : public CssFilterTest {
