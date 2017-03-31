@@ -37,7 +37,7 @@ fi
 
 binary_packages=(subversion httpd gcc-c++ gperf make rpm-build
   glibc-devel at curl-devel expat-devel gettext-devel openssl-devel zlib-devel
-  libevent-devel rsync redhat-lsb)
+  libevent-devel rsync redhat-lsb libuuid-devel)
 src_packages=()
 
 if "$additional_dev_packages"; then
