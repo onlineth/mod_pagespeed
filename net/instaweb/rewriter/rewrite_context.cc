@@ -2523,14 +2523,14 @@ bool RewriteContext::PrepareFetch(
         break;
       }
 
-      // if we're not authorized, consult the extent to which we are proxying
-      // according to the url namer.
-      if (!is_authorized && FindServerContext()->url_namer()->ProxyMode()
-	  == UrlNamer::ProxyExtent::kNone &&
-	  !driver->MatchesBaseUrl(*url)) {
-	// Reject absolute url references unless we're proxying.
+      if (!is_authorized) {
 	is_valid = false;
-	message_handler->Message(kError, "Rejected absolute url reference %s",
+	// TODO(oschaaf): cannot reproduce a situation where we get here.
+	// The system test had example.com, which is authorized for fetching
+	// The system test now has evil.com which isn't authorized, but also
+	// doesn't hit this flow, and is probably rejected earlier (?)
+	// Figure that out.
+	message_handler->Message(kError, "Rejected unauthorized url reference %s",
 				 url->spec_c_str());
 	break;
       }

@@ -22,9 +22,9 @@ echo APACHE_LOG = $APACHE_LOG
 tail --sleep-interval=0.1 -F $APACHE_LOG > $ABSOLUTE_URLS_LOG_PATH &
 TAIL_PID=$!
 
-# should fail; the example.com isn't us.
+# should fail; the evil.com isn't us and not authorized
 http_proxy=$SECONDARY_HOSTNAME check_not $WGET_DUMP \
-    "$HOST_NAME/,hexample.com.pagespeed.jm.0.js"
+    "$HOST_NAME/,hevil.com.pagespeed.jm.0.js"
 
 REJECTED="Rejected absolute url reference"
 
