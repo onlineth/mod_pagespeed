@@ -2508,16 +2508,6 @@ bool RewriteContext::PrepareFetch(
         break;
       }
 
-      if (FindServerContext()->url_namer()->ProxyMode()
-            == UrlNamer::ProxyExtent::kNone &&
-          !driver->MatchesBaseUrl(*url)) {
-        // Reject absolute url references unless we're proxying.
-        is_valid = false;
-        message_handler->Message(kError, "Rejected absolute url reference %s",
-                                 url->spec_c_str());
-        break;
-      }
-
       bool is_authorized;
       ResourcePtr resource(driver->CreateInputResource(
           *url, RewriteDriver::InputRole::kReconstruction, &is_authorized));
@@ -2532,6 +2522,19 @@ bool RewriteContext::PrepareFetch(
         is_valid = false;
         break;
       }
+
+      // if we're not authorized, consult the extent to which we are proxying
+      // according to the url namer.
+      if (!is_authorized && FindServerContext()->url_namer()->ProxyMode()
+	  == UrlNamer::ProxyExtent::kNone &&
+	  !driver->MatchesBaseUrl(*url)) {
+	// Reject absolute url references unless we're proxying.
+	is_valid = false;
+	message_handler->Message(kError, "Rejected absolute url reference %s",
+				 url->spec_c_str());
+	break;
+      }
+
       resource->set_is_background_fetch(false);
       ResourceSlotPtr slot(new FetchResourceSlot(resource));
       AddSlot(slot);
